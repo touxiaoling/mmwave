@@ -1,11 +1,9 @@
-from libc cimport string
-from libc.stdio cimport printf,fprintf
+from libc.stdio cimport printf as DEBUG_PRINT
+from libc.stdio cimport fprintf,printf
 from libc.stdint cimport uint8_t, int8_t,int16_t,uint16_t, int32_t, uint32_t
 from libc.math cimport ceil
-from libc.time cimport usleep
 
 cdef extern from "ti/mmwave/mmwave.h":
-    int MML_TDAInit(unsigned char *ipAddr , unsigned int port,uint8_t deviceMap)
     ctypedef struct rlProfileCfg_t:
         uint16_t profileId
         uint8_t pfVcoSelect
@@ -56,7 +54,11 @@ cdef extern from "ti/mmwave/mmwave.h":
         uint16_t cascadingPinoutCfg
     
     ctypedef struct rlAdcBitFormat_t:
-        uint32_t acdBitFromat
+        uint32_t b2AdcBits
+        uint32_t b6Reserved0
+        uint32_t b8FullScaleReducFctr
+        uint32_t b2AdcOutFmt
+        uint32_t b14Reserved1
 
     ctypedef struct rlAdcOutCfg_t:
         rlAdcBitFormat_t fmt
@@ -68,7 +70,7 @@ cdef extern from "ti/mmwave/mmwave.h":
         uint16_t adcBits
         uint16_t adcFmt
         uint8_t iqSwapSel
-        uint8_t chInterLeave
+        uint8_t chInterleave
         uint32_t reserved
     
     ctypedef struct rlRfLdoBypassCfg_t:
@@ -94,8 +96,8 @@ cdef extern from "ti/mmwave/mmwave.h":
         uint8_t reserved
 
     ctypedef struct rlDevDataPathClkCfg_t:
-        uint8_t lanClkCfg
-        uint8_t datarate
+        uint8_t laneClkCfg
+        uint8_t dataRate
         uint16_t reserved
 
     ctypedef struct rlDevHsiClk_t:
@@ -103,10 +105,10 @@ cdef extern from "ti/mmwave/mmwave.h":
         uint16_t reserved
 
     ctypedef struct rlDevCsi2Cfg_t:
-        uint32_t lanPosPolSel
+        uint32_t lanePosPolSel
         uint8_t lineStartEndDis
         uint8_t reserved0
-        uint16_t reserved1
+        uint16_t reserved0
     
     ctypedef struct rlTdaArmCfg_t:
         unsigned int framePeriodicity
@@ -115,40 +117,41 @@ cdef extern from "ti/mmwave/mmwave.h":
         unsigned int dataPacking
         unsigned int numberOfFramesToCapture
 
-    cdef extern int MMWL_chirpConfig(unsigned char deviceMap, rlChirpCfg_t chirpCfgArgs)
-    cdef extern unsigned int createDevMapFromDevId(unsigned char devId)
-    cdef extern int MMWL_DevicePowerUp(unsigned char deviceMap, uint32_t rlClientCbsTimeout, uint32_t sopTimeout)
-    cdef extern int MMWL_firmwareDownload(unsigned char deviceMap)
-    cdef extern int MMWL_setDeviceCrcType(unsigned char deviceMap)
-    cdef extern int MMWL_rfEnable(unsigned char deviceMap)
-    cdef extern int MMWL_channelConfig(unsigned char deviceMap, unsigned short cascade, rlChanCfg_t rfChanCfgArgs)
-    cdef extern int MMWL_adcOutConfig(unsigned char deviceMap, rlRfMiscConf_t miscCfg)
-    cdef extern int MMWL_RFDeviceConfig(unsigned char deviceMap)
-    cdef extern int MMWL_ldoBypassConfig(unsigned char deviceMap, rlRfLdoBypassCfg_t rfLdoBypassCfgArgs)
-    cdef extern int MMWL_dataFmtConfig(unsigned char deviceMap, rlDevDataFmtCfg_t dataFmtCfgArgs)
-    cdef extern int MMWL_lowPowerConfig(unsigned char deviceMap, rlLowPowerModeCfg_t rfLpModeCfgArgs)
-    cdef extern int MMWL_ApllSynthBwConfig(unsigned char deviceMap)
-    cdef extern int MMWL_setMiscConfig(unsigned char deviceMap, rlRfMiscConf_t miscCfg)
-    cdef extern int MMWL_rfInit(unsigned char deviceMap)
-    cdef extern int MMWL_dataPathConfig(unsigned char deviceMap, rlDevDataPathCfg_t datapathCfgArgs)
-    cdef extern int MMWL_hsiClockConfig(unsigned char deviceMap, rlDevDataPathClkCfg_t datapathClkCfgArgs, rlDevHsiClk_t hisClkgs)
-    cdef extern int MMWL_CSI2LaneConfig(unsigned char deviceMap, rlDevCsi2Cfg_t CSI2LaneCfgArgs)
-    cdef extern int MMWL_profileConfig(unsigned char deviceMap, rlProfileCfg_t profileCfgArgs)
-    cdef extern int MMWL_frameConfig(unsigned char deviceMap, rlFrameCfg_t frameCfgArgs, rlChanCfg_t channelCfgArgs, rlAdcOutCfg_t adcOutCfgArgs, rlDevDataPathCfg_t datapathCfgArgs, rlProfileCfg_t profileCfgArgs)
-    cdef extern int MMWL_AssignDeviceMap(unsigned char deviceMap,uint8_t* masterMap,uint8_t* slavesMap)
-    cdef extern int MMWL_ArmingTDA(rlTdaArmCfg_t tdaArmCfgArgs)
-    cdef extern int MMWL_StartFrame(unsigned char deviceMap)
-    cdef extern int MMWL_StopFrame(unsigned char deviceMap)
-    cdef extern int MMWL_DeArmingTDA()
+    int MMWL_chirpConfig(unsigned char deviceMap, rlChirpCfg_t chirpCfgArgs)
+    unsigned int createDevMapFromDevId(unsigned char devId)
+    int MMWL_DevicePowerUp(unsigned char deviceMap, uint32_t rlClientCbsTimeout, uint32_t sopTimeout)
+    int MMWL_firmwareDownload(unsigned char deviceMap)
+    int MMWL_setDeviceCrcType(unsigned char deviceMap)
+    int MMWL_rfEnable(unsigned char deviceMap)
+    int MMWL_channelConfig(unsigned char deviceMap, unsigned short cascade, rlChanCfg_t rfChanCfgArgs)
+    int MMWL_adcOutConfig(unsigned char deviceMap, rlAdcOutCfg_t adcOutCfgArgs)
+    int MMWL_RFDeviceConfig(unsigned char deviceMap)
+    int MMWL_ldoBypassConfig(unsigned char deviceMap, rlRfLdoBypassCfg_t rfLdoBypassCfgArgs)
+    int MMWL_dataFmtConfig(unsigned char deviceMap, rlDevDataFmtCfg_t dataFmtCfgArgs)
+    int MMWL_lowPowerConfig(unsigned char deviceMap, rlLowPowerModeCfg_t rfLpModeCfgArgs)
+    int MMWL_ApllSynthBwConfig(unsigned char deviceMap)
+    int MMWL_setMiscConfig(unsigned char deviceMap, rlRfMiscConf_t miscCfg)
+    int MMWL_rfInit(unsigned char deviceMap)
+    int MMWL_dataPathConfig(unsigned char deviceMap, rlDevDataPathCfg_t datapathCfgArgs)
+    int MMWL_hsiClockConfig(unsigned char deviceMap, rlDevDataPathClkCfg_t datapathClkCfgArgs, rlDevHsiClk_t hisClkgs)
+    int MMWL_CSI2LaneConfig(unsigned char deviceMap, rlDevCsi2Cfg_t CSI2LaneCfgArgs)
+    int MMWL_profileConfig(unsigned char deviceMap, rlProfileCfg_t profileCfgArgs)
+    int MMWL_frameConfig(unsigned char deviceMap, rlFrameCfg_t frameCfgArgs, rlChanCfg_t channelCfgArgs, rlAdcOutCfg_t adcOutCfgArgs, rlDevDataPathCfg_t datapathCfgArgs, rlProfileCfg_t profileCfgArgs)
+    int MMWL_AssignDeviceMap(unsigned char deviceMap,uint8_t* masterMap,uint8_t* slavesMap)
+    int MMWL_ArmingTDA(rlTdaArmCfg_t tdaArmCfgArgs)
+    int MMWL_StartFrame(unsigned char deviceMap)
+    int MMWL_StopFrame(unsigned char deviceMap)
+    int MMWL_DeArmingTDA()
+    int MML_TDAInit(unsigned char *ipAddr , unsigned int port,uint8_t deviceMap)
 
 
 
 
 # 定义程序名称、版本等常量
-PROG_NAME = "mmwave"             # Name of the program
+PROG_NAME = "mmwcas"             # Name of the program
 PROG_VERSION = "0.1"             # Program version
-PROG_COPYRIGHT = "Copyright (C) 2022"
-DEBUG_PRINT = printf             # Debug print function
+PROG_COPYRIGHT = "Copyright (C) 2024"
+#DEBUG_PRINT = printf             # Debug print function
 
 RL_RET_CODE_OK = 0               # Return code for success
 
@@ -254,9 +257,14 @@ cdef rlChanCfg_t channelCfgArgs = rlChanCfg_t(
     cascading = 0x02,        # Slave
 )
 
+cdef rlAdcBitFormat_t adcBitFormat = rlAdcBitFormat_t(
+    b2AdcBits = 2,           # 16-bit ADC
+    b2AdcOutFmt = 1,         # Complex values
+    b8FullScaleReducFctr = 0,
+)
 # ADC output config */
 cdef rlAdcOutCfg_t adcOutCfgArgs = rlAdcOutCfg_t(
-    fmt = 2+1<<16+0<<18,
+    fmt = adcBitFormat,
 )
 
 # Data format config */
@@ -309,9 +317,9 @@ cdef rlDevCsi2Cfg_t csi2LaneCfgArgs = rlDevCsi2Cfg_t(
     lanePosPolSel = 0x35421,   # 0b 0011 0101 0100 0010 0001,
 )
 
-# 定义一个毫秒级睡眠的函数
-cdef void msleep(int milliseconds):
-    usleep(milliseconds * 1000)
+# # 定义一个毫秒级睡眠的函数
+# cdef void msleep(int milliseconds):
+#     usleep(milliseconds * 1000)
 
 #*
 #* @brief MIMO Chirp configuration
@@ -335,7 +343,7 @@ cdef int8_t is_in_table(uint8_t value, uint8_t[:] table, uint8_t size):
 #* @param chirpCfg Initital chirp configuration
 #* @return uint32_t Configuration status
 #*
-cpdef uint32_t configureMimoChirp(uint8_t devId, rlChirpCfg_t* chirpCfg):
+cpdef uint32_t configureMimoChirp(uint8_t devId, rlChirpCfg_t chirpCfg):
     # 定义设备的 Tx 表
     cdef uint8_t[4][3] chripTxTable=[[11,10,9],[8,7,6],[5,4,3],[2,1,0]]
     
@@ -356,10 +364,10 @@ cpdef uint32_t configureMimoChirp(uint8_t devId, rlChirpCfg_t* chirpCfg):
             chirpCfg.txEnable = (1 << txIdx)
 
         # 配置 chirp 并更新状态
-        status += MMWL_chirpConfig(createDevMapFromDevId(devId), chirpCfg[0])
+        status += MMWL_chirpConfig(createDevMapFromDevId(devId), chirpCfg)
 
         # 打印调试信息
-        fprintf(b"[CHIRP CONFIG] dev %u, chirp idx %u, status: %d\n", devId, i, status)
+        printf(b"[CHIRP CONFIG] dev %u, chirp idx %u, status: %d\n", devId, i, status)
         if status != 0:
             DEBUG_PRINT(b"Configuration of chirp %d failed!\n", i)
             break
@@ -435,12 +443,13 @@ cdef int32_t initMaster(rlChanCfg_t channelCfg,rlAdcOutCfg_t adcOutCfg):
 cdef int32_t initSlaves(rlChanCfg_t channelCfg, rlAdcOutCfg_t adcOutCfg):
     cdef int status = 0
     cdef uint8_t slavesMap = (1 << 1) | (1 << 2) | (1 << 3)
+    cdef unsigned int slaveMap
 
     # slave chip
     channelCfg.cascading = 2
 
     for slaveId in range(1,4):
-        cdef unsigned int slaveMap = 1 << slaveId
+        slaveMap = 1 << slaveId
 
         status += MMWL_DevicePowerUp(slaveMap, 1000, 1000)
         check(status,
@@ -587,58 +596,58 @@ cpdef mmw_set_config(dict configdict):
         if "profile" in mimo:
             profile = mimo["profile"]
             if "id" in profile:
-                config.profileCfg.profileId = uint16_t(profile["id"])
+                config.profileCfg.profileId = <uint16_t>(profile["id"])
             if "startFrequency" in profile:
-                config.profileCfg.startFreqConst = uint32_t(ceil(profile["startFrequency"]*1e9/53.644))
+                config.profileCfg.startFreqConst = <uint32_t>(ceil(profile["startFrequency"]*1e9/53.644))
             if "frequencySlope" in profile:
-                config.profileCfg.freqSlopeConst = int16_t(ceil(profile["frequencySlope"]*1e3/48.279)) 
+                config.profileCfg.freqSlopeConst = <int16_t>(ceil(profile["frequencySlope"]*1e3/48.279)) 
             if "idleTime" in profile:
-                config.profileCfg.idleTimeConst = uint32_t(ceil(profile["idleTime"]*1e2))
+                config.profileCfg.idleTimeConst = <uint32_t>(ceil(profile["idleTime"]*1e2))
             if "adcStartTime" in profile:
-                config.profileCfg.adcStartTimeConst = uint32_t(ceil(profile["adcStartTime"]*1e2))
+                config.profileCfg.adcStartTimeConst = <uint32_t>(ceil(profile["adcStartTime"]*1e2))
             if "rampEndTime" in profile:
-                config.profileCfg.rampEndTime = uint32_t(ceil(profile["rampEndTime"]*1e2))
+                config.profileCfg.rampEndTime = <uint32_t>(ceil(profile["rampEndTime"]*1e2))
             if "txStartTIme" in profile:
-                config.profileCfg.txStartTime = uint16_t(ceil(profile["txStartTIme"]*1e2))
+                config.profileCfg.txStartTime = <uint16_t>(ceil(profile["txStartTIme"]*1e2))
             if "numAdcSamples" in profile:
-                config.profileCfg.numAdcSamples = uint16_t(profile["numAdcSamples"])
+                config.profileCfg.numAdcSamples = <uint16_t>(profile["numAdcSamples"])
             if "adcSamplingFrequency" in profile:
-                config.profileCfg.digOutSampleRate = uint16_t(profile["adcSamplingFrequency"])
+                config.profileCfg.digOutSampleRate = <uint16_t>(profile["adcSamplingFrequency"])
             if "rxGain" in profile:
-                config.profileCfg.rxGain = uint16_t(profile["rxGain"])
+                config.profileCfg.rxGain = <uint16_t>(profile["rxGain"])
             if "hpfCornerFreq1" in profile:
-                config.profileCfg.hpfCornerFreq1 = uint8_t(profile["hpfCornerFreq1"])
+                config.profileCfg.hpfCornerFreq1 = <uint8_t>(profile["hpfCornerFreq1"])
             if "hpfCornerFreq2" in profile:
-                config.profileCfg.hpfCornerFreq2 = uint8_t(profile["hpfCornerFreq2"])
+                config.profileCfg.hpfCornerFreq2 = <uint8_t>(profile["hpfCornerFreq2"])
             
         if "frame" in mimo:
             frame = mimo["frame"]
             if "numFrames" in frame:
-                config.frameCfg.numFrames = uint16_t(frame["numFrames"])
+                config.frameCfg.numFrames = <uint16_t>(frame["numFrames"])
             if "numLoops" in frame:
-                config.frameCfg.numLoops = uint16_t(frame["numLoops"])
+                config.frameCfg.numLoops = <uint16_t>(frame["numLoops"])
             if "framePeriodicity" in frame:
-                config.frameCfg.framePeriodicity = uint32_t(ceil(frame["framePeriodicity"]*1e7))
+                config.frameCfg.framePeriodicity = <uint32_t>(ceil(frame["framePeriodicity"]*1e7))
         if "channel" in mimo:
             channel = mimo["channel"]
             if "rxChannelEn" in channel:
-                config.channelCfg.rxChannelEn = uint16_t(channel["rxChannelEn"])
+                config.channelCfg.rxChannelEn = <uint16_t>(channel["rxChannelEn"])
             if "txChannelEn" in channel:
-                config.channelCfg.txChannelEn = uint16_t(channel["txChannelEn"])
+                config.channelCfg.txChannelEn = <uint16_t>(channel["txChannelEn"])
         config.frameCfg.numAdcSamples = 2 * config.profileCfg.numAdcSamples
         config.dataFmtCfg.rxChannelEn = config.channelCfg.rxChannelEn
         
         config.dataFmtCfg.rxChannelEn = channelCfgArgs.rxChannelEn
-        config.dataFmtCfg.adcBits = adcOutCfgArgs.fmt & 0x3
-        config.dataFmtCfg.adcFmt = (adcOutCfgArgs.fmt >> 16) & 0x3
+        config.dataFmtCfg.adcBits = adcOutCfgArgs.fmt.adcBits
+        config.dataFmtCfg.adcFmt = adcOutCfgArgs.fmt.adcFmt
 
 cpdef int mmw_init(
-    bytes capture_directory,
-    bytes ip_addr="192.168.30.180",
+    str ip_addr="192.168.30.180",
     int port = 1800,
     ):
     cdef int status = 0
-    status = MML_TDAInit(ip_addr,port,config.deviceMap)
+    cdef bytes ip_addr_bytes = ip_addr.encode('utf-8')
+    status = MML_TDAInit(ip_addr_bytes,port,config.deviceMap)
     check(status,
         "[ALL] TDA Init successful!",
         "[ALL] TDA Init failed!", config.deviceMap, TRUE)
@@ -647,11 +656,12 @@ cpdef int mmw_init(
 
     return status
 
-cpdef int mmw_arming_tda(bytes capture_path):
+cpdef int mmw_arming_tda(str capture_path):
     cdef int status = 0
+    cdef bytes capture_path_bytes = capture_path.encode('utf-8')
     cdef rlTdaArmCfg_t tdaCfg=rlTdaArmCfg_t(
-        captureDirectory = capture_path,
-        framePeriodicity = (frameCfgArgs.framePeriodicity * 5)/(1000*1000),
+        captureDirectory = capture_path_bytes,
+        framePeriodicity = (frameCfgArgs.framePeriodicity * 5)//(1000*1000),
         numberOfFilesToAllocate = 0,
         numberOfFramesToCapture = 0, # config.frameCfg.numFrames,
         dataPacking = 0, # 0: 16-bit | 1: 12-bit
@@ -683,7 +693,7 @@ cpdef int mmw_stop_frame():
 
 cpdef int mmw_dearming_tda():
     cdef int status = 0
-    status = MMWL_DeArmingTDA(config.deviceMap)
+    status = MMWL_DeArmingTDA()
     check(status,
       "[MMWCAS-RF] Stop recording",
       "[MMWCAS-RF] Failed to de-arm TDA board!\n", 32, TRUE)

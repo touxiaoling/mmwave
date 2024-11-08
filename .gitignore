@@ -8,3 +8,7 @@ html/
 
 # Generated executable
 mmwave
+
+/*.so
+/mmwcas.c
+/build
