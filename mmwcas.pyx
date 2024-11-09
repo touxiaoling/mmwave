@@ -219,25 +219,34 @@ ctypedef struct devConfig_t:
     # CSI2 configuration
     rlDevCsi2Cfg_t csi2LaneCfg
 
-
+"""! \brief
+* Profile config API parameters. A profile contains coarse parameters of FMCW chirp such as
+* start frequency, chirp slope, ramp time, idle time etc. Fine dithering values need
+* to be programmed in chirp configuration \ref rlChirpCfg_t
+* \note Maximum of 4 profiles can be configured.
+*/
+"""
 cdef rlProfileCfg_t profileCfgArgs=rlProfileCfg_t(
-    profileId = 0,
-    pfVcoSelect = 0x02,
-    startFreqConst = 1435384036,   # 77GHz | 1 LSB = 53.644 Hz
-    freqSlopeConst = 311,          # 15.0148 Mhz/us | 1LSB = 48.279 kHz/uS
-    idleTimeConst = 500,           # 5us  | 1LSB = 10ns
-    adcStartTimeConst = 600,       # 6us  | 1LSB = 10ns
-    rampEndTime = 4000,            # 40us | 1LSB = 10ns
-    txOutPowerBackoffCode = 0x0,
+    profileId = 0,                 # Profile index (0-3)
+    pfVcoSelect = 0x02,            # VCO2 (77G:77 - 81 GHz or 60G:60 - 64 GHz) 77-81GHz use only VCO2
+    startFreqConst = 1435384036,   # 77GHz | 1 LSB = 53.644 Hz Valid range: 0x5471C71B to 0x5A000000 
+    freqSlopeConst = 311,          # 15.0148 Mhz/us | 1LSB = 48.279 kHz/uS AWR2243 device: -5510 to 5510 (266MHz/uS)
+    idleTimeConst = 500,           # 5us  | 1LSB = 10ns Valid range: 0 to 524287
+    adcStartTimeConst = 600,       # 6us  | 1LSB = 10ns Valid range: 0 to 4095  Time of starting of ADC capture relative to the knee of the ramp.
+    rampEndTime = 4000,            # 40us | 1LSB = 10ns End of ramp time relative to the knee of the ramp 77G : 76 - 78 GHz or 77 - 81 GHz
+    txOutPowerBackoffCode = 0x0,   # Concatenated code for output power backoff for TX0, TX1, TX2\n
     txPhaseShifter = 0x0,
     txStartTime = 0x0,             # 0us | 1LSB = 10ns
     numAdcSamples = 256,           # 256 ADC samples per chirp
-    digOutSampleRate = 8000,      # 8000 ksps (8 MHz) | 1LSB = 1 ksps
+    digOutSampleRate = 8000,       # 8000 ksps (8 MHz) | 1LSB = 1 ksps
     hpfCornerFreq1 = 0x0,          # 175kHz
     hpfCornerFreq2 = 0x0,          # 350kHz
     rxGain = 48,                   # 48 dB | 1LSB = 1dB
 )
 
+"""! \brief
+* Frame config API parameters
+"""
 cdef rlFrameCfg_t frameCfgArgs=rlFrameCfg_t(
     chirpStartIdx = 0,
     chirpEndIdx = 11,
@@ -248,6 +257,13 @@ cdef rlFrameCfg_t frameCfgArgs=rlFrameCfg_t(
     framePeriodicity = 20000000,   # 100ms | 1LSB = 5ns
 )
 
+"""! \brief
+* Chirp config API parameters. This structure contains fine dithering to coarse profile
+* defined in \ref rlProfileCfg_t. It also includes the selection of Transmitter and
+* binary phase modulation for a chirp.\n
+* @note : One can define upto 512 unique chirps.These chirps need to be included in
+*         frame configuration structure \ref rlFrameCfg_t to create FMCW frame
+"""
 cdef rlChirpCfg_t chirpCfgArgs = rlChirpCfg_t(
     chirpStartIdx = 0,
     chirpEndIdx = 0,
@@ -259,7 +275,9 @@ cdef rlChirpCfg_t chirpCfgArgs = rlChirpCfg_t(
     freqSlopeVar = 0,
 )
 
-# Channel config */
+"""! \brief
+* Rx/Tx Channel Configuration
+"""
 cdef rlChanCfg_t channelCfgArgs = rlChanCfg_t(
     rxChannelEn = 0x0F,      # Enable all 4 RX Channels
     txChannelEn = 0x07,      # Enable all 3 TX Channels
@@ -271,12 +289,18 @@ cdef rlAdcBitFormat_t adcBitFmtArgs = rlAdcBitFormat_t(
     b2AdcOutFmt = 1,         # Complex values
     b8FullScaleReducFctr = 0,
 )
-# ADC output config */
+
+
+"""! \brief
+* ADC format and payload justification Configuration
+"""
 cdef rlAdcOutCfg_t adcOutCfgArgs = rlAdcOutCfg_t(
     fmt = adcBitFmtArgs,
 )
 
-# Data format config */
+"""! \brief
+* mmwave radar data format config
+"""
 cdef rlDevDataFmtCfg_t dataFmtCfgArgs = rlDevDataFmtCfg_t(
     iqSwapSel = 0,           # I first
     chInterleave = 0,        # Interleaved mode
@@ -285,42 +309,56 @@ cdef rlDevDataFmtCfg_t dataFmtCfgArgs = rlDevDataFmtCfg_t(
     adcBits = 2,             # 16-bit ADC
 )
 
-# LDO Bypass config */
+"""! \brief
+* Radar RF LDO bypass enable/disable configuration
+"""
 cdef rlRfLdoBypassCfg_t ldoCfgArgs = rlRfLdoBypassCfg_t(
     ldoBypassEnable = 3,       # RF LDO disabled, PA LDO disabled
     ioSupplyIndicator = 0,
     supplyMonIrDrop = 0,
 )
 
-# Low Power Mode config */
+"""! \brief
+* Power saving mode configuration
+"""
 cdef rlLowPowerModeCfg_t lpmCfgArgs = rlLowPowerModeCfg_t(
     lpAdcMode = 0,             # Regular ADC power mode
 )
 
-# Miscellaneous config */
+"""! \brief
+* Radar RF Miscconfiguration
+"""
 cdef rlRfMiscConf_t miscCfgArgs = rlRfMiscConf_t(
     miscCtl = 1,               # Enable Per chirp phase shifter
 )
 
-# Datapath config */
+"""! \brief
+* mmwave radar data path config.
+"""
 cdef rlDevDataPathCfg_t datapathCfgArgs = rlDevDataPathCfg_t(
     intfSel = 0,               # CSI2 intrface
     transferFmtPkt0 = 1,       # ADC data only
     transferFmtPkt1 = 0,       # Suppress packet 1
 )
 
-# Datapath clock config */
+"""! \brief
+* DataPath clock configuration
+"""
 cdef rlDevDataPathClkCfg_t datapathClkCfgArgs = rlDevDataPathClkCfg_t(
     laneClkCfg = 1,            # DDR Clock
     dataRate = 1,              # 600Mbps
 )
 
-# High speed clock config */
+"""! \brief
+* mmwave radar high speed clock configuration
+"""
 cdef rlDevHsiClk_t hsClkCfgArgs = rlDevHsiClk_t(
     hsiClk = 0x09,             # DDR 600Mbps
 )
 
-# CSI2 config */
+"""! \brief
+* CSI2 configuration
+"""
 cdef rlDevCsi2Cfg_t csi2LaneCfgArgs = rlDevCsi2Cfg_t(
     lineStartEndDis = 0,       # Enable
     lanePosPolSel = 0x35421,   # 0b 0011 0101 0100 0010 0001,
@@ -692,6 +730,10 @@ cpdef int mmw_init(
     return status
 
 cpdef int mmw_arming_tda(str capture_path):
+    """@brief Prepare the TDA board and notify TDA about the start of recording
+    * @capture_path capture path setup to arm the TDA for recording 
+    * @return int 
+    """
     cdef int status = 0
     cdef bytes capture_path_bytes = f"/mnt/ssd/{capture_path}".encode('utf-8')
     cdef rlTdaArmCfg_t tdaCfg = rlTdaArmCfg_t(
@@ -719,14 +761,14 @@ cpdef int mmw_stop_frame():
     cdef int status = 0
     status += MMWL_StopFrame(config.deviceMap)
     check(status,
-      b"[MMWCAS-RF] Stoped Frame ...",
-      b"[MMWCAS-RF] Failed to stoped frame!", config.deviceMap, TRUE)
+        b"[MMWCAS-RF] Stoped Frame ...",
+        b"[MMWCAS-RF] Failed to stoped frame!", config.deviceMap, TRUE)
     return status
 
 cpdef int mmw_dearming_tda():
     cdef int status = 0
     status = MMWL_DeArmingTDA()
     check(status,
-      b"[MMWCAS-RF] Stop recording",
-      b"[MMWCAS-RF] Failed to de-arm TDA board!", 32, TRUE)
+        b"[MMWCAS-RF] Stop recording",
+        b"[MMWCAS-RF] Failed to de-arm TDA board!", 32, TRUE)
     return status
