@@ -24,3 +24,16 @@ assert status==0,ValueError
 status=mmwcas.mmw_dearming_tda()
 assert status==0,ValueError
 time.sleep(2)
+
+status = mmwcas.mmw_arming_tda("outdoor1")
+assert status==0,ValueError
+time.sleep(2)
+status = mmwcas.mmw_start_frame()
+assert status==0,ValueError
+
+time.sleep(record_duration)
+
+status=mmwcas.mmw_stop_frame()
+assert status==0,ValueError
+status=mmwcas.mmw_dearming_tda()
+assert status==0,ValueError
