@@ -4,7 +4,7 @@ CFLAGS = -o
 FLAGS = -c -w
 
 ODIR = output
-
+PYTHON ?= python
 # Root directory
 ROOT_DIR = ti
 
@@ -37,12 +37,17 @@ all: mmwlink mmwethernet mmwave cliopt tomlconfig
 	@${CC} ${CFLAGS} mmwave *.o -lpthread -lm
 	@rm -f *.o
 
-build: all
-
-install: all
-	@sudo cp -f ./mmwave /usr/bin
-	@rm -f ./mmwave
-
 clean:
 	@rm -f *.o
 	@rm -f mmwave
+	@rm -rf build
+	@rm -f mmwcas.c
+
+build-cython:
+	@${PYTHON} setup.py build_ext --inplace
+
+build: clean all build-cython
+
+install: clean all build-cython
+	make clean
+

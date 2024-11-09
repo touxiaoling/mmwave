@@ -266,14 +266,14 @@ cdef rlChanCfg_t channelCfgArgs = rlChanCfg_t(
     cascading = 0x02,        # Slave
 )
 
-cdef rlAdcBitFormat_t adcBitFormat = rlAdcBitFormat_t(
+cdef rlAdcBitFormat_t adcBitFmtArgs = rlAdcBitFormat_t(
     b2AdcBits = 2,           # 16-bit ADC
     b2AdcOutFmt = 1,         # Complex values
     b8FullScaleReducFctr = 0,
 )
 # ADC output config */
 cdef rlAdcOutCfg_t adcOutCfgArgs = rlAdcOutCfg_t(
-    fmt = adcBitFormat,
+    fmt = adcBitFmtArgs,
 )
 
 # Data format config */
@@ -326,18 +326,35 @@ cdef rlDevCsi2Cfg_t csi2LaneCfgArgs = rlDevCsi2Cfg_t(
     lanePosPolSel = 0x35421,   # 0b 0011 0101 0100 0010 0001,
 )
 
-# # 定义一个毫秒级睡眠的函数
-# cdef void msleep(int milliseconds):
-#     usleep(milliseconds * 1000)
+"""
+|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|
+|       | Dev 1 | Dev 1 | Dev 1 | Dev 2 | Dev 2 | Dev 2 | Dev 3 | Dev 3 | Dev 3 | Dev 4 | Dev 4 | Dev 4 |
+| Chirp |  TX0  |  TX1  |  TX2  |  TX 0 |  TX1  |  TX2  |  TX0  |  TX1  |  TX2  |  TX0  |  TX1  |  TX2  |
+|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|
+|     0 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |     1 |
+|     1 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |     1 |     0 |
+|     2 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |     1 |     0 |     0 |
+|     3 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |     1 |     0 |     0 |     0 |
+|     4 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |     1 |     0 |     0 |     0 |     0 |
+|     5 |     0 |     0 |     0 |     0 |     0 |     0 |     1 |     0 |     0 |     0 |     0 |     0 |
+|     6 |     0 |     0 |     0 |     0 |     0 |     1 |     0 |     0 |     0 |     0 |     0 |     0 |
+|     7 |     0 |     0 |     0 |     0 |     1 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |
+|     8 |     0 |     0 |     0 |     1 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |
+|     9 |     0 |     0 |     1 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |
+|    10 |     0 |     1 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |
+|    11 |     1 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |     0 |
+|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|-------|
+"""
 
-#*
-#* @brief MIMO Chirp configuration
-#*
-#* @param devId Device ID (0: master, 1: slave1, 2: slave2, 3: slave3)
-#* @param chirpCfg Initital chirp configuration
-#* @return uint32_t Configuration status
-#*
+
 cdef int8_t is_in_table(uint8_t value, uint8_t[:] table, uint8_t size):
+    '''@brief Check if a value is in the table provided in argument
+    #* @param value Value to look for in the table
+    #* @param table Table defining the search context
+    #* @param size Size of the table
+    #* @return int8_t
+    #* Return the index where the match has been found. -1 if not found
+    '''
     cdef uint8_t i
     for i in range(size):
         if table[i] == value:
@@ -345,14 +362,12 @@ cdef int8_t is_in_table(uint8_t value, uint8_t[:] table, uint8_t size):
     return -1
 
 
-#*
-#* @brief MIMO Chirp configuration
-#*
-#* @param devId Device ID (0: master, 1: slave1, 2: slave2, 3: slave3)
-#* @param chirpCfg Initital chirp configuration
-#* @return uint32_t Configuration status
-#*
 cpdef uint32_t configureMimoChirp(uint8_t devId, rlChirpCfg_t chirpCfg):
+    """@brief MIMO Chirp configuration
+    #* @param devId Device ID (0: master, 1: slave1, 2: slave2, 3: slave3)
+    #* @param chirpCfg Initital chirp configuration
+    #* @return uint32_t Configuration status
+    """
     # 定义设备的 Tx 表
     cdef uint8_t[4][3] chripTxTable=[[11,10,9],[8,7,6],[5,4,3],[2,1,0]]
     
@@ -385,6 +400,17 @@ cpdef uint32_t configureMimoChirp(uint8_t devId, rlChirpCfg_t chirpCfg):
 
 cdef void check(int status, char* success_msg, char* error_msg,
                 unsigned char deviceMap, uint8_t is_required):
+    """@brief Check status and print error or success message
+    @param status Status value returned by a function
+    @param success_msg Success message to print when status is 0
+    @param error_msg Error message to print in case of error
+    @param deviceMap Device map the check if related to
+    @param is_required Indicates if the checking stage is required. if so,the program exits in case of failure.
+    @return uint32_t Configuration status
+
+    @note: Status is considered successful when the status integer is 0.
+    Any other value is considered a failure.
+    """
     # 模拟 DEV_ENV 环境下的调试信息
     if DEV_ENV:
         printf(b"STATUS %4d | DEV MAP: %2u | ", status, deviceMap)
@@ -411,9 +437,9 @@ cdef void check(int status, char* success_msg, char* error_msg,
 
 cdef int32_t initMaster(rlChanCfg_t channelCfg,rlAdcOutCfg_t adcOutCfg):
     cdef unsigned int masterId = 0
-    cdef unsigned int masterMap = 1<<masterId
+    cdef unsigned int masterMap = 1 << masterId
     cdef int status = 0
-    channelCfg.cascading =1
+    channelCfg.cascading = 1
     status += MMWL_DevicePowerUp(masterMap, 1000, 1000)
     check(status,
         b"[MASTER] Power up successful!",
@@ -602,46 +628,46 @@ cpdef mmw_set_config(dict configdict):
     cdef dict mimo,profile,frame,channel
     if "mimo" in configdict:
         mimo = configdict["mimo"]
-        if "profile" in mimo:
+        if "profile" in mimo: # [PROFILE CONFIGURATION]
             profile = mimo["profile"]
             if "id" in profile:
                 config.profileCfg.profileId = <uint16_t>(profile["id"])
-            if "startFrequency" in profile:
-                config.profileCfg.startFreqConst = <uint32_t>(ceil(profile["startFrequency"]*1e9/53.644))
-            if "frequencySlope" in profile:
-                config.profileCfg.freqSlopeConst = <int16_t>(ceil(profile["frequencySlope"]*1e3/48.279)) 
-            if "idleTime" in profile:
-                config.profileCfg.idleTimeConst = <uint32_t>(ceil(profile["idleTime"]*1e2))
-            if "adcStartTime" in profile:
-                config.profileCfg.adcStartTimeConst = <uint32_t>(ceil(profile["adcStartTime"]*1e2))
-            if "rampEndTime" in profile:
-                config.profileCfg.rampEndTime = <uint32_t>(ceil(profile["rampEndTime"]*1e2))
-            if "txStartTIme" in profile:
-                config.profileCfg.txStartTime = <uint16_t>(ceil(profile["txStartTIme"]*1e2))
-            if "numAdcSamples" in profile:
+            if "startFrequency" in profile: # Chirp start frequency in GHz
+                config.profileCfg.startFreqConst = <uint32_t>(ceil(profile["startFrequency"]*1e9/53.644)) # 1LSB = 53.644 Hz
+            if "frequencySlope" in profile: # Frequency slope in MHz/us
+                config.profileCfg.freqSlopeConst = <int16_t>(ceil(profile["frequencySlope"]*1e3/48.279)) # 1LSB = 48.279 kHz/us
+            if "idleTime" in profile:# Chrip Idle time in us
+                config.profileCfg.idleTimeConst = <uint32_t>(ceil(profile["idleTime"]*1e2)) # 1LSB = 10ns
+            if "adcStartTime" in profile:# ADC start time in us
+                config.profileCfg.adcStartTimeConst = <uint32_t>(ceil(profile["adcStartTime"]*1e2)) # 1LSB = 10ns
+            if "rampEndTime" in profile:# Chirp ramp end time in us
+                config.profileCfg.rampEndTime = <uint32_t>(ceil(profile["rampEndTime"]*1e2)) # 1LSB = 10ns
+            if "txStartTIme" in profile:# TX starttime in us
+                config.profileCfg.txStartTime = <uint16_t>(ceil(profile["txStartTIme"]*1e2)) # 1LSB = 10ns
+            if "numAdcSamples" in profile:# Number of ADC samples per chirp
                 config.profileCfg.numAdcSamples = <uint16_t>(profile["numAdcSamples"])
-            if "adcSamplingFrequency" in profile:
+            if "adcSamplingFrequency" in profile:# ADC sampling frequency in ksps
                 config.profileCfg.digOutSampleRate = <uint16_t>(profile["adcSamplingFrequency"])
-            if "rxGain" in profile:
+            if "rxGain" in profile:# rxGain in dB
                 config.profileCfg.rxGain = <uint16_t>(profile["rxGain"])
-            if "hpfCornerFreq1" in profile:
+            if "hpfCornerFreq1" in profile: # hpfCornerFreq1
                 config.profileCfg.hpfCornerFreq1 = <uint8_t>(profile["hpfCornerFreq1"])
-            if "hpfCornerFreq2" in profile:
+            if "hpfCornerFreq2" in profile: # hpfCornerFreq2
                 config.profileCfg.hpfCornerFreq2 = <uint8_t>(profile["hpfCornerFreq2"])
             
-        if "frame" in mimo:
+        if "frame" in mimo: # [FRAME CONFIGURATION]
             frame = mimo["frame"]
-            if "numFrames" in frame:
+            if "numFrames" in frame: # Number of frames to record
                 config.frameCfg.numFrames = <uint16_t>(frame["numFrames"])
-            if "numLoops" in frame:
+            if "numLoops" in frame: # Number of chirp loop per frame
                 config.frameCfg.numLoops = <uint16_t>(frame["numLoops"])
-            if "framePeriodicity" in frame:
-                config.frameCfg.framePeriodicity = <uint32_t>(ceil(frame["framePeriodicity"]*1e7))
-        if "channel" in mimo:
+            if "framePeriodicity" in frame: # Frame periodicity in ms
+                config.frameCfg.framePeriodicity = <uint32_t>(ceil(frame["framePeriodicity"]*5e-6)) # 1LSB = 5ns
+        if "channel" in mimo:# [CHANNEL CONFIGURATION]
             channel = mimo["channel"]
-            if "rxChannelEn" in channel:
+            if "rxChannelEn" in channel: # RX Channel configuration
                 config.channelCfg.rxChannelEn = <uint16_t>(channel["rxChannelEn"])
-            if "txChannelEn" in channel:
+            if "txChannelEn" in channel: # TX Channel configuration
                 config.channelCfg.txChannelEn = <uint16_t>(channel["txChannelEn"])
         config.frameCfg.numAdcSamples = 2 * config.profileCfg.numAdcSamples
         config.dataFmtCfg.rxChannelEn = config.channelCfg.rxChannelEn
@@ -668,9 +694,9 @@ cpdef int mmw_init(
 cpdef int mmw_arming_tda(str capture_path):
     cdef int status = 0
     cdef bytes capture_path_bytes = capture_path.encode('utf-8')
-    cdef rlTdaArmCfg_t tdaCfg=rlTdaArmCfg_t(
+    cdef rlTdaArmCfg_t tdaCfg = rlTdaArmCfg_t(
         captureDirectory = capture_path_bytes,
-        framePeriodicity = (frameCfgArgs.framePeriodicity * 5)//(1000*1000),
+        framePeriodicity = (frameCfgArgs.framePeriodicity * 5)//(1000 * 1000),
         numberOfFilesToAllocate = 0,
         numberOfFramesToCapture = 0, # config.frameCfg.numFrames,
         dataPacking = 0, # 0: 16-bit | 1: 12-bit
