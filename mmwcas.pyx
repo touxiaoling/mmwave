@@ -685,15 +685,15 @@ cpdef int mmw_init(
     cdef bytes ip_addr_bytes = ip_addr.encode('utf-8')
     status = MMWL_TDAInit(ip_addr_bytes,port,config.deviceMap)
     check(status,
-        b"[ALL] TDA Init successful!",
-        b"[ALL] TDA Init failed!", config.deviceMap, TRUE)
+        b"[MMWCAS-DSP] TDA Connected!",
+        b"[MMWCAS-DSP] Couldn't connect to TDA board!", 32, TRUE)
 
     configure(config) 
     return status
 
 cpdef int mmw_arming_tda(str capture_path):
     cdef int status = 0
-    cdef bytes capture_path_bytes = capture_path.encode('utf-8')
+    cdef bytes capture_path_bytes = f"/mnt/ssd/{capture_path}".encode('utf-8')
     cdef rlTdaArmCfg_t tdaCfg = rlTdaArmCfg_t(
         captureDirectory = capture_path_bytes,
         framePeriodicity = (frameCfgArgs.framePeriodicity * 5)//(1000 * 1000),
@@ -703,28 +703,24 @@ cpdef int mmw_arming_tda(str capture_path):
     )
     status = MMWL_ArmingTDA(tdaCfg)
     check(status,
-        b"[ALL] TDA Arming successful!",
-        b"[ALL] TDA Arming failed!", config.deviceMap, TRUE)
+        b"[MMWCAS-DSP] Arming TDA",
+        b"[MMWCAS-DSP] TDA Arming failed!", 32, TRUE)
     return status
 
 cpdef int mmw_start_frame():
     cdef int status = 0
-    cdef int i
-    for i in range(3,-1,-1):
-        status += MMWL_StartFrame(1<<i)
-        check(status,
-            b"[ALL] RF successfully enabled!",
-            b"[ALL] Error: Failed to enable master RF", 1<<i, TRUE)
+    status += MMWL_StartFrame(config.deviceMap)
+    check(status,
+        b"[MMWCAS-RF] Framing ...",
+        b"[MMWCAS-RF] Failed to initiate framing!", config.deviceMap, TRUE)
     return status
 
 cpdef int mmw_stop_frame():
     cdef int status = 0
-    cdef int i
-    for i in range(3,-1,-1):
-        status += MMWL_StopFrame(1<<i)
-        check(status, 
-            b"[ALL] RF successfully disenabled!",
-            b"[ALL] Error: Failed to disenable master RF", 1<<i, TRUE)
+    status += MMWL_StopFrame(config.deviceMap)
+    check(status,
+      b"[MMWCAS-RF] Stoped Frame ...",
+      b"[MMWCAS-RF] Failed to stoped frame!", config.deviceMap, TRUE)
     return status
 
 cpdef int mmw_dearming_tda():
