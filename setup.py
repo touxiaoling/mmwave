@@ -9,6 +9,7 @@ MMWLINK_IDIR = f"{ROOT_DIR}/mmwavelink/src"
 MMWLINK_H_IDIR = f"{ROOT_DIR}/mmwavelink/include"
 MMWETH_IDIR = f"{ROOT_DIR}/ethernet/src"
 MMWAVE_IDIR = f"{ROOT_DIR}/mmwave"
+FIRMWARE_IDIR = f"{ROOT_DIR}/firmware"
 #CLI_OPT_IDIR = "opt"
 #TOML_CONFIG_IDIR = "toml"
 
@@ -39,15 +40,18 @@ extensions = Extension(
             MMWLINK_H_IDIR,     # mmwlink 头文件目录
             MMWETH_IDIR,        # mmwethernet 目录
             MMWAVE_IDIR,        # mmwave 目录
+            FIRMWARE_IDIR,
 #            CLI_OPT_IDIR,       # cliopt 目录
 #            TOML_CONFIG_IDIR    # tomlconfig 目录
         ],
         extra_compile_args=["-w"],  # 添加编译选项（如禁用警告）
-        libraries=["pthread", "m"]  # 链接 pthread 和数学库
+        libraries=["pthread", "m"],  # 链接 pthread 和数学库
     )
 
 # 编写 setup 配置
 setup(
     name="mmwcas",
-    ext_modules=cythonize(extensions),
+    ext_modules=cythonize(extensions,
+                          #annotate=True,
+                          compiler_directives={'language_level' : "3str"}),
 )

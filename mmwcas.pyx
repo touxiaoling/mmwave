@@ -157,22 +157,22 @@ cdef extern from "ti/mmwave/mmwave.h":
 
 
 # 定义程序名称、版本等常量
-PROG_NAME = "mmwcas"             # Name of the program
-PROG_VERSION = "0.1"             # Program version
-PROG_COPYRIGHT = "Copyright (C) 2024"
+cdef char* PROG_NAME = b"mmwcas"             # Name of the program
+cdef char* PROG_VERSION = b"0.1"             # Program version
+cdef char* PROG_COPYRIGHT = b"Copyright (C) 2024"
 #DEBUG_PRINT = printf             # Debug print function
 
-RL_RET_CODE_OK = 0               # Return code for success
+cdef int RL_RET_CODE_OK = 0               # Return code for success
 
 # 开发环境标志和其他常量
-DEV_ENV = 1
-NUM_CHIRPS = 12
+cdef int DEV_ENV = 1
+cdef int NUM_CHIRPS = 12
 
-CRED=b"\e[0;31m"    # Terminal code for regular red text
-CGREEN=b"\e[0;32m"    # Terminal code for regular greed text
-CRESET=b"\e[0m"       # Clear reset terminal color
+cdef char* CRED = b"\e[0;31m"    # Terminal code for regular red text
+cdef char* CGREEN = b"\e[0;32m"    # Terminal code for regular greed text
+cdef char* CRESET = b"\e[0m"       # Clear reset terminal color
 
-TRUE = 1
+cdef uint8_t TRUE = 1
 
 
 # 设备配置结构体
@@ -385,7 +385,7 @@ cdef rlDevCsi2Cfg_t csi2LaneCfgArgs = rlDevCsi2Cfg_t(
 """
 
 
-cdef int8_t is_in_table(uint8_t value, uint8_t[:] table, uint8_t size):
+cdef int8_t is_in_table(uint8_t value, uint8_t* table, uint8_t size):
     '''@brief Check if a value is in the table provided in argument
     #* @param value Value to look for in the table
     #* @param table Table defining the search context
