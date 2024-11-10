@@ -49,5 +49,6 @@ build-cython:
 build: clean all build-cython
 
 install: clean all build-cython
+	@sudo cp -f ./mmwave /usr/bin
 	make clean
 
