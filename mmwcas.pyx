@@ -173,6 +173,7 @@ cdef char* CGREEN = b"\e[0;32m"    # Terminal code for regular greed text
 cdef char* CRESET = b"\e[0m"       # Clear reset terminal color
 
 cdef uint8_t TRUE = 1
+cdef uint8_t FALSE = 0
 
 
 # 设备配置结构体
@@ -456,16 +457,16 @@ cdef void check(int status, char* success_msg, char* error_msg,
     # 检查状态
     if status == RL_RET_CODE_OK:
         if DEV_ENV:
-            printf(CGREEN)
+            #printf(CGREEN)
             printf(success_msg)
-            printf(CRESET)
+            #printf(CRESET)
             printf("\n")
         return
     else:
         if DEV_ENV:
-            printf(CRED)
+            #printf(CRED)
             printf(error_msg)
-            printf(CRESET)
+            #printf(CRESET)
             printf("\n")
         
         # 如果 is_required 为非零，则退出程序
@@ -729,7 +730,7 @@ cpdef int mmw_init(
     configure(config) 
     return status
 
-cpdef int mmw_arming_tda(str capture_path):
+cpdef int mmw_arming_tda(str capture_path) except -1:
     """@brief Prepare the TDA board and notify TDA about the start of recording
     * @capture_path capture path setup to arm the TDA for recording 
     * @return int 
@@ -746,29 +747,29 @@ cpdef int mmw_arming_tda(str capture_path):
     status = MMWL_ArmingTDA(tdaCfg)
     check(status,
         b"[MMWCAS-DSP] Arming TDA",
-        b"[MMWCAS-DSP] TDA Arming failed!", 32, TRUE)
+        b"[MMWCAS-DSP] TDA Arming failed!", 32, FALSE)
     return status
 
-cpdef int mmw_start_frame():
+cpdef int mmw_start_frame() except -1:
     cdef int status = 0
-    status += MMWL_StartFrame(config.deviceMap)
+    status = MMWL_StartFrame(config.deviceMap)
     check(status,
         b"[MMWCAS-RF] Framing ...",
-        b"[MMWCAS-RF] Failed to initiate framing!", config.deviceMap, TRUE)
+        b"[MMWCAS-RF] Failed to initiate framing!", config.deviceMap, FALSE)
     return status
 
-cpdef int mmw_stop_frame():
+cpdef int mmw_stop_frame() except -1:
     cdef int status = 0
-    status += MMWL_StopFrame(config.deviceMap)
+    status = MMWL_StopFrame(config.deviceMap)
     check(status,
         b"[MMWCAS-RF] Stoped Frame ...",
-        b"[MMWCAS-RF] Failed to stoped frame!", config.deviceMap, TRUE)
+        b"[MMWCAS-RF] Failed to stoped frame!", config.deviceMap, FALSE)
     return status
 
-cpdef int mmw_dearming_tda():
+cpdef int mmw_dearming_tda() except -1:
     cdef int status = 0
     status = MMWL_DeArmingTDA()
     check(status,
         b"[MMWCAS-RF] Stop recording",
-        b"[MMWCAS-RF] Failed to de-arm TDA board!", 32, TRUE)
+        b"[MMWCAS-RF] Failed to de-arm TDA board!", 32, FALSE)
     return status
