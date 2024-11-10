@@ -651,13 +651,13 @@ int main (int argc, char *argv[]) {
     .dataPacking = 0, // 0: 16-bit | 1: 12-bit
   };
 
-  if ((unsigned char *)get_option(&parser, "configure") != NULL) {
-    // Connect to TDA
-    status = MMWL_TDAInit(ip_addr, port, config.deviceMap);
-    check(status,
-      "[MMWCAS-DSP] TDA Connected!",
-      "[MMWCAS-DSP] Couldn't connect to TDA board!\n", 32, TRUE);
+  // Connect to TDA
+  status = MMWL_TDAInit(ip_addr, port, config.deviceMap);
+  check(status,
+    "[MMWCAS-DSP] TDA Connected!",
+    "[MMWCAS-DSP] Couldn't connect to TDA board!\n", 32, TRUE);
 
+  if ((unsigned char *)get_option(&parser, "configure") != NULL) {
     // Start configuration
     configure(config);
     msleep(2000);
@@ -673,9 +673,7 @@ int main (int argc, char *argv[]) {
     msleep(2000);
 
     // Start framing
-    for (int i = 3; i >=0; i--) {
-      status += MMWL_StartFrame(1U << i);
-    }
+    status = MMWL_StartFrame(config.deviceMap);
     check(status,
       "[MMWCAS-RF] Framing ...",
       "[MMWCAS-RF] Failed to initiate framing!\n", config.deviceMap, TRUE);
@@ -683,9 +681,10 @@ int main (int argc, char *argv[]) {
     msleep((unsigned long int)record_duration);
 
     // Stop framing
-    for (int i = 3; i >= 0; i--) {
-      status += MMWL_StopFrame(1U << i);
-    }
+    status = MMWL_StopFrame(config.deviceMap);
+    check(status,
+      "[MMWCAS-RF] Atoped Framing ...",
+      "[MMWCAS-RF] Failed to Stoped framing!\n", config.deviceMap, TRUE);
 
     status += MMWL_DeArmingTDA();
     check(status,
