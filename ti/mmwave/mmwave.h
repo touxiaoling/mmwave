@@ -20,6 +20,8 @@
 
 /* AWR2243 meta image file */
 #include "../firmware/xwr22xx_metaImage.h"
+#include "rls_osi.h"
+// #include "../firmware/xwr12xx_metaImage.h"
 
 #include "../mmwavelink/mmwavelink.h"
 #include "../ethernet/src/mmwl_port_ethernet.h"
