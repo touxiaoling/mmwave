@@ -730,7 +730,7 @@ cpdef int mmw_init(
     configure(config) 
     return status
 
-cpdef int mmw_arming_tda(str capture_path) except -1:
+cpdef int mmw_arming_tda(str capture_path):
     """@brief Prepare the TDA board and notify TDA about the start of recording
     * @capture_path capture path setup to arm the TDA for recording 
     * @return int 
@@ -750,7 +750,7 @@ cpdef int mmw_arming_tda(str capture_path) except -1:
         b"[MMWCAS-DSP] TDA Arming failed!", 32, FALSE)
     return status
 
-cpdef int mmw_start_frame() except -1:
+cpdef int mmw_start_frame():
     cdef int status = 0
     status = MMWL_StartFrame(config.deviceMap)
     check(status,
@@ -758,7 +758,7 @@ cpdef int mmw_start_frame() except -1:
         b"[MMWCAS-RF] Failed to initiate framing!", config.deviceMap, FALSE)
     return status
 
-cpdef int mmw_stop_frame() except -1:
+cpdef int mmw_stop_frame():
     cdef int status = 0
     status = MMWL_StopFrame(config.deviceMap)
     check(status,
@@ -766,7 +766,7 @@ cpdef int mmw_stop_frame() except -1:
         b"[MMWCAS-RF] Failed to stoped frame!", config.deviceMap, FALSE)
     return status
 
-cpdef int mmw_dearming_tda() except -1:
+cpdef int mmw_dearming_tda():
     cdef int status = 0
     status = MMWL_DeArmingTDA()
     check(status,
