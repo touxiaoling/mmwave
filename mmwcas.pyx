@@ -744,9 +744,9 @@ cdef int mmw_arming_tda_c(unsigned char* capture_path) noexcept nogil:
     )
     with nogil:
         status = MMWL_ArmingTDA(tdaCfg)
-    check(status,
-        b"[MMWCAS-DSP] Arming TDA",
-        b"[MMWCAS-DSP] TDA Arming failed!", 32, FALSE)
+        check(status,
+            b"[MMWCAS-DSP] Arming TDA",
+            b"[MMWCAS-DSP] TDA Arming failed!", 32, FALSE)
     return status
 
 cpdef int mmw_arming_tda(str capture_path):
@@ -763,25 +763,25 @@ cpdef int mmw_start_frame() noexcept nogil:
     cdef int status = 0
     with nogil:
         status = MMWL_StartFrame(config.deviceMap)
-    check(status,
-        b"[MMWCAS-RF] Framing ...",
-        b"[MMWCAS-RF] Failed to initiate framing!", config.deviceMap, FALSE)
+        check(status,
+            b"[MMWCAS-RF] Framing ...",
+            b"[MMWCAS-RF] Failed to initiate framing!", config.deviceMap, FALSE)
     return status
 
 cpdef int mmw_stop_frame() noexcept nogil:
     cdef int status = 0
     with nogil:
         status = MMWL_StopFrame(config.deviceMap)
-    check(status,
-        b"[MMWCAS-RF] Stoped Frame ...",
-        b"[MMWCAS-RF] Failed to stoped frame!", config.deviceMap, FALSE)
+        check(status,
+            b"[MMWCAS-RF] Stoped Frame ...",
+            b"[MMWCAS-RF] Failed to stoped frame!", config.deviceMap, FALSE)
     return status
 
 cpdef int mmw_dearming_tda() noexcept nogil:
     cdef int status = 0
     with nogil:
         status = MMWL_DeArmingTDA()
-    check(status,
-        b"[MMWCAS-RF] Stop recording",
-        b"[MMWCAS-RF] Failed to de-arm TDA board!", 32, FALSE)
+        check(status,
+            b"[MMWCAS-RF] Stop recording",
+            b"[MMWCAS-RF] Failed to de-arm TDA board!", 32, FALSE)
     return status
