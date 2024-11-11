@@ -702,7 +702,7 @@ cpdef mmw_set_config(dict configdict):
             if "numLoops" in frame: # Number of chirp loop per frame
                 config.frameCfg.numLoops = <uint16_t>(frame["numLoops"])
             if "framePeriodicity" in frame: # Frame periodicity in ms
-                config.frameCfg.framePeriodicity = <uint32_t>(ceil(frame["framePeriodicity"]*5e-6)) # 1LSB = 5ns
+                config.frameCfg.framePeriodicity = <uint32_t>(ceil(frame["framePeriodicity"]*200_000)) # 1LSB = 5ns
         if "channel" in mimo:# [CHANNEL CONFIGURATION]
             channel = mimo["channel"]
             if "rxChannelEn" in channel: # RX Channel configuration
