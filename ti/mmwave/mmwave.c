@@ -1872,7 +1872,7 @@ int MMWL_StartFrame(unsigned char deviceMap) {
       "Device map %u : Sensor Start failed with error code %d \n\n",
       deviceMap, retVal
     );
-    return -1;
+    return retVal;
   }
 
   return retVal;
