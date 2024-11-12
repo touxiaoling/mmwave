@@ -157,22 +157,22 @@ cdef extern from "ti/mmwave/mmwave.h":
 
 
 # 定义程序名称、版本等常量
-PROG_NAME = "mmwcas"             # Name of the program
-PROG_VERSION = "0.1"             # Program version
-PROG_COPYRIGHT = "Copyright (C) 2024"
+cdef char* PROG_NAME = b"mmwcas"             # Name of the program
+cdef char* PROG_VERSION = b"0.1"             # Program version
+cdef char* PROG_COPYRIGHT = b"Copyright (C) 2024"
 #DEBUG_PRINT = printf             # Debug print function
 
-RL_RET_CODE_OK = 0               # Return code for success
+cdef int RL_RET_CODE_OK = 0               # Return code for success
 
 # 开发环境标志和其他常量
-DEV_ENV = 1
-NUM_CHIRPS = 12
+cdef int DEV_ENV = 1
+cdef int NUM_CHIRPS = 12
 
-CRED=b"\e[0;31m"    # Terminal code for regular red text
-CGREEN=b"\e[0;32m"    # Terminal code for regular greed text
-CRESET=b"\e[0m"       # Clear reset terminal color
+cdef char* CRED=b"\e[0;31m"    # Terminal code for regular red text
+cdef char* CGREEN=b"\e[0;32m"    # Terminal code for regular greed text
+cdef char* CRESET=b"\e[0m"       # Clear reset terminal color
 
-TRUE = 1
+cdef int TRUE = 1
 
 
 # 设备配置结构体
@@ -456,16 +456,16 @@ cdef void check(int status, char* success_msg, char* error_msg,
     # 检查状态
     if status == RL_RET_CODE_OK:
         if DEV_ENV:
-            printf(CGREEN)
+            #printf(CGREEN)
             printf(success_msg)
-            printf(CRESET)
+            #printf(CRESET)
             printf("\n")
         return
     else:
         if DEV_ENV:
-            printf(CRED)
+            #printf(CRED)
             printf(error_msg)
-            printf(CRESET)
+            #printf(CRESET)
             printf("\n")
         
         # 如果 is_required 为非零，则退出程序
@@ -475,7 +475,7 @@ cdef void check(int status, char* success_msg, char* error_msg,
 
 cdef int32_t initMaster(rlChanCfg_t channelCfg,rlAdcOutCfg_t adcOutCfg):
     cdef unsigned int masterId = 0
-    cdef unsigned int masterMap = 1 << masterId
+    cdef unsigned int masterMap = 1U << masterId
     cdef int status = 0
     channelCfg.cascading = 1
     status += MMWL_DevicePowerUp(masterMap, 1000, 1000)
@@ -639,10 +639,6 @@ cdef uint32_t configure (devConfig_t config):
         b"[SLAVE] Frame configuration completed!",
         b"[SLAVE] Frame configuration failed!", config.slavesMap, TRUE)
 
-    check(status,
-        b"[MIMO] Configuration completed!",
-        b"[MIMO] Configuration completed with error!", config.deviceMap, TRUE)
-
     return status
 
 cdef devConfig_t config
@@ -700,7 +696,7 @@ cpdef mmw_set_config(dict configdict):
             if "numLoops" in frame: # Number of chirp loop per frame
                 config.frameCfg.numLoops = <uint16_t>(frame["numLoops"])
             if "framePeriodicity" in frame: # Frame periodicity in ms
-                config.frameCfg.framePeriodicity = <uint32_t>(ceil(frame["framePeriodicity"]*5e-6)) # 1LSB = 5ns
+                config.frameCfg.framePeriodicity = <uint32_t>(ceil(frame["framePeriodicity"]*2e5)) # 1LSB = 5ns
         if "channel" in mimo:# [CHANNEL CONFIGURATION]
             channel = mimo["channel"]
             if "rxChannelEn" in channel: # RX Channel configuration
