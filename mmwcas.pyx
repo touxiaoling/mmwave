@@ -285,18 +285,16 @@ cdef rlChanCfg_t channelCfgArgs = rlChanCfg_t(
     cascading = 0x02,        # Slave
 )
 
-cdef rlAdcBitFormat_t adcBitFmtArgs = rlAdcBitFormat_t(
-    b2AdcBits = 2,           # 16-bit ADC
-    b2AdcOutFmt = 1,         # Complex values
-    b8FullScaleReducFctr = 0,
-)
-
 
 """! \brief
 * ADC format and payload justification Configuration
 """
 cdef rlAdcOutCfg_t adcOutCfgArgs = rlAdcOutCfg_t(
-    fmt = adcBitFmtArgs,
+    fmt = rlAdcBitFormat_t(
+        b2AdcBits = 2,           # 16-bit ADC
+        b2AdcOutFmt = 1,         # Complex values
+        b8FullScaleReducFctr = 0,
+    ),
 )
 
 """! \brief
