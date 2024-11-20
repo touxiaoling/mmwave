@@ -30,17 +30,17 @@
 /** Profile config */
 const rlProfileCfg_t profileCfgArgs = {
   .profileId = 0,
-  .pfVcoSelect = 0x02,
-  .startFreqConst = 1435384036,   // 77GHz | 1 LSB = 53.644 Hz
-  .freqSlopeConst = 311,          // 15.0148 Mhz/us | 1LSB = 48.279 kHz/uS
+  .pfVcoSelect = 0x02, //77~81G
+  .startFreqConst = 1435384036,   //0x558e38e4 // 77GHz | 1 LSB = 53.644 Hz Valid range: 0x5471C71B to 0x5A000000 //0x5471C71B * 3.6e9/2**26=75999999922.51396
+  .freqSlopeConst = 311,          // 15.0148 Mhz/us | 1LSB = 48.279 kHz/uS   Valid range: -2072 to 2072 (Max 100MHz/uS) \n
   .idleTimeConst = 500,           // 5us  | 1LSB = 10ns
   .adcStartTimeConst = 600,       // 6us  | 1LSB = 10ns
   .rampEndTime = 4000,            // 40us | 1LSB = 10ns
   .txOutPowerBackoffCode = 0x0,
   .txPhaseShifter = 0x0,
   .txStartTime = 0x0,             // 0us | 1LSB = 10ns
-  .numAdcSamples = 256,           // 256 ADC samples per chirp
-  .digOutSampleRate = 8000,      // 8000 ksps (8 MHz) | 1LSB = 1 ksps
+  .numAdcSamples = 256,           // 256 ADC samples per chirp // 4 rx complex max 1024
+  .digOutSampleRate = 8000,      // 8000 ksps (8 MHz) | 1LSB = 1 ksps xWR1xxx devices: 2000 to 37500 (Max 15MHz IF bandwidth)
   .hpfCornerFreq1 = 0x0,          // 175kHz
   .hpfCornerFreq2 = 0x0,          // 350kHz
   .rxGain = 48,                   // 48 dB | 1LSB = 1dB
