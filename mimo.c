@@ -673,7 +673,9 @@ int main (int argc, char *argv[]) {
     msleep(2000);
 
     // Start framing
-    status = MMWL_StartFrame(config.deviceMap);
+    for (int i = 3; i >=0; i--) {
+      status += MMWL_StartFrame(1U << i);
+    }
     check(status,
       "[MMWCAS-RF] Framing ...",
       "[MMWCAS-RF] Failed to initiate framing!\n", config.deviceMap, TRUE);
@@ -681,7 +683,9 @@ int main (int argc, char *argv[]) {
     msleep((unsigned long int)record_duration);
 
     // Stop framing
-    status = MMWL_StopFrame(config.deviceMap);
+    for (int i = 0; i >= 3; i++) {
+      status += MMWL_StopFrame(1U << i);
+    }
     check(status,
       "[MMWCAS-RF] Atoped Framing ...",
       "[MMWCAS-RF] Failed to Stoped framing!\n", config.deviceMap, TRUE);
